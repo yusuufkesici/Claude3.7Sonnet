@@ -194,9 +194,78 @@ document.addEventListener('DOMContentLoaded', function() {
                     font-size: 1.2rem;
                 }
             }
+            
+            .visitor-counter {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: var(--primary-color);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 50px;
+                font-size: 14px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .visitor-counter .icon {
+                font-size: 18px;
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+            
+            .visitor-counter .count {
+                font-weight: bold;
+                animation: pulse 1.5s infinite;
+            }
         `;
         document.head.appendChild(style);
     };
     
     addStyles();
+    
+    // Anlık ziyaretçi sayısı özelliği
+    const createVisitorCounter = () => {
+        // Ziyaretçi sayacı elementi oluştur
+        const visitorCounter = document.createElement('div');
+        visitorCounter.classList.add('visitor-counter');
+        
+        // Simge ve sayaç içeriği
+        visitorCounter.innerHTML = `
+            <span class="icon">👥</span>
+            <span>Şu anda sitede: <span class="count">1</span> kişi</span>
+        `;
+        
+        // Sayfaya ekle
+        document.body.appendChild(visitorCounter);
+        
+        // Rastgele ziyaretçi sayısı oluştur ve güncelle
+        const updateVisitorCount = () => {
+            // Gerçek bir sistem olmadığı için rastgele sayı üretiyoruz
+            // Normalde bu veri sunucu tarafından sağlanır
+            const baseCount = 3; // Temel ziyaretçi sayısı
+            const randomVariation = Math.floor(Math.random() * 5); // 0-4 arası rastgele değişim
+            const totalCount = baseCount + randomVariation;
+            
+            // Sayacı güncelle
+            const countElement = visitorCounter.querySelector('.count');
+            countElement.textContent = totalCount;
+        };
+        
+        // İlk sayıyı ayarla
+        updateVisitorCount();
+        
+        // Belirli aralıklarla sayıyı güncelle (her 30 saniyede bir)
+        setInterval(updateVisitorCount, 30000);
+    };
+    
+    // Ziyaretçi sayacını oluştur
+    createVisitorCounter();
 }); 
