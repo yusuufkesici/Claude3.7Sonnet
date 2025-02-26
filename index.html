@@ -8,11 +8,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
         <div class="container">
-            <div class="logo">
+            <div class="logo shine-effect">
                 <h1>Claude <span>3.7</span></h1>
             </div>
             <nav>
@@ -35,7 +36,7 @@
                 <a href="#yetenekler" class="btn">Yetenekleri Keşfet</a>
             </div>
             <div class="hero-image">
-                <img src="https://placehold.co/600x400" alt="Claude 3.7 Görseli">
+                <img src="https://placehold.co/600x400" alt="Claude 3.7 Görseli" id="hero-image">
             </div>
         </div>
     </section>
@@ -44,42 +45,42 @@
         <div class="container">
             <h2 class="section-title">Claude 3.7'nin Üstün Yetenekleri</h2>
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">📝</div>
                     <h3>Gelişmiş Metin Oluşturma</h3>
                     <p>Daha doğal, akıcı ve tutarlı metinler oluşturabilir. Makaleler, özetler, e-postalar ve yaratıcı içerikler üretebilir.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">💻</div>
                     <h3>Kod Yazma ve Düzenleme</h3>
                     <p>Çeşitli programlama dillerinde kod yazabilir, hata ayıklayabilir ve mevcut kodu optimize edebilir.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">🔍</div>
                     <h3>Veri Analizi</h3>
                     <p>Karmaşık veri setlerini analiz edebilir, örüntüleri tespit edebilir ve anlamlı içgörüler sunabilir.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">🌐</div>
                     <h3>Çoklu Dil Desteği</h3>
                     <p>Birçok dilde yüksek kalitede içerik üretebilir ve çeviri yapabilir.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">🧠</div>
                     <h3>Bağlam Anlama</h3>
                     <p>Uzun ve karmaşık konuşmaları takip edebilir, bağlamı koruyabilir ve tutarlı yanıtlar verebilir.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">🛡️</div>
                     <h3>Güvenlik ve Etik</h3>
                     <p>Zararlı içeriklere karşı güçlü koruma mekanizmaları ve etik sınırlar içinde çalışır.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">🎨</div>
                     <h3>Yaratıcı İçerik</h3>
                     <p>Hikayeler, şiirler, senaryolar ve diğer yaratıcı içerikler oluşturabilir.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-sound="pop">
                     <div class="feature-icon">📊</div>
                     <h3>Veri Görselleştirme</h3>
                     <p>Veri görselleştirme için kod ve açıklamalar oluşturabilir.</p>
@@ -92,28 +93,28 @@
         <div class="container">
             <h2 class="section-title">Kullanım Alanları</h2>
             <div class="use-cases-grid">
-                <div class="use-case-card">
-                    <h3>Eğitim</h3>
+                <div class="use-case-card" data-sound="click">
+                    <h3><i class="fas fa-graduation-cap"></i> Eğitim</h3>
                     <p>Öğrencilere kişiselleştirilmiş öğrenme deneyimleri sunma, karmaşık konuları açıklama ve eğitim materyalleri oluşturma.</p>
                 </div>
-                <div class="use-case-card">
-                    <h3>İş ve Üretkenlik</h3>
+                <div class="use-case-card" data-sound="click">
+                    <h3><i class="fas fa-briefcase"></i> İş ve Üretkenlik</h3>
                     <p>E-posta yanıtlama, toplantı özetleri oluşturma, raporlar hazırlama ve iş süreçlerini otomatikleştirme.</p>
                 </div>
-                <div class="use-case-card">
-                    <h3>Yazılım Geliştirme</h3>
+                <div class="use-case-card" data-sound="click">
+                    <h3><i class="fas fa-code"></i> Yazılım Geliştirme</h3>
                     <p>Kod yazma, hata ayıklama, test senaryoları oluşturma ve teknik dokümantasyon hazırlama.</p>
                 </div>
-                <div class="use-case-card">
-                    <h3>İçerik Üretimi</h3>
+                <div class="use-case-card" data-sound="click">
+                    <h3><i class="fas fa-pen-fancy"></i> İçerik Üretimi</h3>
                     <p>Blog yazıları, sosyal medya içerikleri, pazarlama metinleri ve yaratıcı içerikler oluşturma.</p>
                 </div>
-                <div class="use-case-card">
-                    <h3>Araştırma ve Analiz</h3>
+                <div class="use-case-card" data-sound="click">
+                    <h3><i class="fas fa-chart-line"></i> Araştırma ve Analiz</h3>
                     <p>Veri analizi, literatür taraması, araştırma özetleri ve hipotez oluşturma.</p>
                 </div>
-                <div class="use-case-card">
-                    <h3>Müşteri Hizmetleri</h3>
+                <div class="use-case-card" data-sound="click">
+                    <h3><i class="fas fa-headset"></i> Müşteri Hizmetleri</h3>
                     <p>Müşteri sorularını yanıtlama, sorun çözme ve kişiselleştirilmiş destek sağlama.</p>
                 </div>
             </div>
@@ -124,25 +125,28 @@
         <div class="container">
             <h2 class="section-title">Claude 3.7 ile Neler Yapabilirsiniz?</h2>
             <div class="demo-examples">
-                <div class="demo-example">
-                    <h3>Tek Bir Prompt ile Web Sitesi Tasarımı</h3>
+                <div class="demo-example interactive-card">
+                    <h3><i class="fas fa-laptop-code"></i> Tek Bir Prompt ile Web Sitesi Tasarımı</h3>
                     <p>Claude 3.7, tek bir prompt ile HTML, CSS ve JavaScript kullanarak tam işlevsel web siteleri tasarlayabilir.</p>
                     <div class="code-example">
                         <pre><code>Lütfen bana e-ticaret sitesi için responsive bir ana sayfa tasarla. Modern bir tasarım olsun ve ürün vitrinleri, navigasyon menüsü ve footer içersin.</code></pre>
+                        <button class="try-button btn">Dene</button>
                     </div>
                 </div>
-                <div class="demo-example">
-                    <h3>Karmaşık Veri Analizi</h3>
+                <div class="demo-example interactive-card">
+                    <h3><i class="fas fa-chart-pie"></i> Karmaşık Veri Analizi</h3>
                     <p>Veri setlerini analiz edebilir ve görselleştirmeler için kod oluşturabilir.</p>
                     <div class="code-example">
                         <pre><code>Bu satış verilerini analiz et ve Python ile trend grafiği oluştur: [veri örneği]</code></pre>
+                        <button class="try-button btn">Dene</button>
                     </div>
                 </div>
-                <div class="demo-example">
-                    <h3>Uzun Metinleri Özetleme</h3>
+                <div class="demo-example interactive-card">
+                    <h3><i class="fas fa-file-alt"></i> Uzun Metinleri Özetleme</h3>
                     <p>Uzun makaleleri, raporları veya kitapları özetleyebilir ve ana noktaları çıkarabilir.</p>
                     <div class="code-example">
                         <pre><code>Bu bilimsel makaleyi özetle ve ana bulguları listele: [makale metni]</code></pre>
+                        <button class="try-button btn">Dene</button>
                     </div>
                 </div>
             </div>
@@ -156,6 +160,10 @@
                 <p>Claude 3.7, Anthropic tarafından geliştirilen en son yapay zeka dil modelidir. Önceki versiyonlara göre daha doğru, daha güvenli ve daha yeteneklidir.</p>
                 <p>Claude 3.7 Sonnet, Claude ailesinin en yeni üyesi olarak, tek bir prompt ile kompleks görevleri yerine getirebilme yeteneğine sahiptir. Uzun bağlamları anlayabilir, tutarlı ve doğru yanıtlar üretebilir.</p>
                 <p>Anthropic'in "Anayasal AI" yaklaşımıyla geliştirilen Claude 3.7, güvenlik ve etik değerlere öncelik vererek tasarlanmıştır.</p>
+                <div class="cta-buttons">
+                    <button id="surprise-button" class="btn">Sürpriz!</button>
+                    <button id="theme-toggle" class="btn">Tema Değiştir</button>
+                </div>
             </div>
         </div>
     </section>
@@ -163,7 +171,7 @@
     <footer>
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">
+                <div class="footer-logo shine-effect">
                     <h2>Claude <span>3.7</span></h2>
                 </div>
                 <div class="footer-links">
@@ -183,9 +191,28 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2023 Claude 3.7 Tanıtım Sayfası. Bu sayfa eğitim amaçlıdır.</p>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                </div>
             </div>
         </div>
     </footer>
+
+    <!-- Ses Efektleri -->
+    <audio id="pop-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-up-alert-notification-2357.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="success-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1936.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="surprise-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-bonus-reached-2065.mp3" type="audio/mpeg">
+    </audio>
 
     <script src="script.js"></script>
 </body>

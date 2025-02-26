@@ -225,6 +225,80 @@ document.addEventListener('DOMContentLoaded', function() {
                 font-weight: bold;
                 animation: pulse 1.5s infinite;
             }
+            
+            .cursor-effect {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                position: fixed;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                z-index: 9999;
+                mix-blend-mode: difference;
+                transition: width 0.2s, height 0.2s;
+            }
+            
+            .cursor-effect.hover {
+                width: 50px;
+                height: 50px;
+                background-color: rgba(255, 255, 255, 0.5);
+            }
+            
+            .confetti-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 1000;
+            }
+            
+            .tooltip-container {
+                position: absolute;
+                background-color: var(--dark-color);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 14px;
+                opacity: 0;
+                transition: opacity 0.3s;
+                pointer-events: none;
+                z-index: 1000;
+                max-width: 200px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            }
+            
+            .tooltip-container::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: var(--dark-color) transparent transparent transparent;
+            }
+            
+            .interactive-button {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .interactive-button .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.4);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+            }
+            
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
         `;
         document.head.appendChild(style);
     };
@@ -264,8 +338,512 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Belirli aralıklarla sayıyı güncelle (her 30 saniyede bir)
         setInterval(updateVisitorCount, 30000);
+        
+        // Tıklama olayı ekle
+        visitorCounter.addEventListener('click', function() {
+            // Konfeti efekti başlat
+            createConfetti(20);
+            
+            // Sayacı hemen güncelle
+            updateVisitorCount();
+            
+            // Animasyon ekle
+            this.classList.add('clicked');
+            setTimeout(() => {
+                this.classList.remove('clicked');
+            }, 500);
+        });
     };
     
     // Ziyaretçi sayacını oluştur
     createVisitorCounter();
+    
+    // Özel imleç efekti
+    const createCursorEffect = () => {
+        const cursor = document.createElement('div');
+        cursor.classList.add('cursor-effect');
+        document.body.appendChild(cursor);
+        
+        // İmleci fare hareketine göre güncelle
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            // Rastgele renk değişimi
+            if (Math.random() < 0.03) { // %3 olasılıkla
+                const hue = Math.floor(Math.random() * 360);
+                cursor.style.backgroundColor = `hsla(${hue}, 70%, 60%, 0.5)`;
+            }
+        });
+        
+        // Tıklama efekti
+        document.addEventListener('mousedown', () => {
+            cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+        
+        // Bağlantılar üzerinde hover efekti
+        const hoverElements = document.querySelectorAll('a, button, .feature-card, .use-case-card, .btn');
+        hoverElements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+            });
+        });
+    };
+    
+    // Masaüstü cihazlarda imleç efektini etkinleştir
+    if (window.matchMedia("(min-width: 768px)").matches) {
+        createCursorEffect();
+    }
+    
+    // Konfeti efekti
+    const createConfetti = (count = 50) => {
+        // Konfeti container'ı oluştur veya mevcut olanı kullan
+        let container = document.querySelector('.confetti-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.classList.add('confetti-container');
+            document.body.appendChild(container);
+        }
+        
+        // Belirtilen sayıda konfeti oluştur
+        for (let i = 0; i < count; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            
+            // Rastgele renk, boyut ve pozisyon
+            const size = Math.random() * 10 + 5; // 5-15px arası
+            const hue = Math.floor(Math.random() * 360); // Rastgele renk
+            const left = Math.random() * 100; // Rastgele yatay pozisyon
+            
+            confetti.style.width = `${size}px`;
+            confetti.style.height = `${size}px`;
+            confetti.style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
+            confetti.style.left = `${left}%`;
+            
+            // Rastgele animasyon süresi ve gecikme
+            const duration = Math.random() * 3 + 2; // 2-5s arası
+            const delay = Math.random() * 0.5; // 0-0.5s arası
+            
+            confetti.style.animation = `confetti-fall ${duration}s ease-in-out ${delay}s`;
+            
+            // Konfeti container'a ekle
+            container.appendChild(confetti);
+            
+            // Animasyon bittiğinde konfeti'yi kaldır
+            setTimeout(() => {
+                confetti.remove();
+            }, (duration + delay) * 1000);
+        }
+    };
+    
+    // Sayfa yüklendiğinde konfeti efekti başlat
+    setTimeout(() => {
+        createConfetti(30);
+    }, 1000);
+    
+    // Hero bölümündeki butona tıklandığında konfeti efekti
+    const heroButton = document.querySelector('.hero .btn');
+    if (heroButton) {
+        heroButton.addEventListener('click', () => {
+            createConfetti(50);
+        });
+    }
+    
+    // Özellik kartlarına 3D efekti ekle
+    const add3DEffect = () => {
+        const cards = document.querySelectorAll('.feature-card, .use-case-card');
+        
+        cards.forEach(card => {
+            card.classList.add('interactive-card');
+            
+            // Kart içeriğini sarmalayan div ekle
+            const cardContent = card.innerHTML;
+            card.innerHTML = `<div class="card-inner">${cardContent}</div>`;
+            
+            // Fare hareketi ile 3D efekti
+            card.addEventListener('mousemove', (e) => {
+                const cardRect = card.getBoundingClientRect();
+                const cardCenterX = cardRect.left + cardRect.width / 2;
+                const cardCenterY = cardRect.top + cardRect.height / 2;
+                
+                const mouseX = e.clientX - cardCenterX;
+                const mouseY = e.clientY - cardCenterY;
+                
+                // Dönüş açısını hesapla (maksimum 10 derece)
+                const rotateY = mouseX * 0.05;
+                const rotateX = -mouseY * 0.05;
+                
+                card.querySelector('.card-inner').style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+            });
+            
+            // Fare karttan çıktığında efekti sıfırla
+            card.addEventListener('mouseleave', () => {
+                card.querySelector('.card-inner').style.transform = 'rotateY(0) rotateX(0)';
+            });
+        });
+    };
+    
+    // Masaüstü cihazlarda 3D efekti etkinleştir
+    if (window.matchMedia("(min-width: 768px)").matches) {
+        add3DEffect();
+    }
+    
+    // Tooltip özelliği
+    const createTooltips = () => {
+        // Tooltip container oluştur
+        const tooltipContainer = document.createElement('div');
+        tooltipContainer.classList.add('tooltip-container');
+        document.body.appendChild(tooltipContainer);
+        
+        // Tooltip özelliği eklenecek elementler
+        const elements = [
+            { selector: '.feature-icon', text: 'Claude 3.7\'nin özel yetenekleri!' },
+            { selector: '.hero .btn', text: 'Hemen keşfetmeye başla!' },
+            { selector: '.logo h1', text: 'Claude 3.7 Sonnet - Anthropic\'in en gelişmiş AI modeli' },
+            { selector: '.footer-contact .btn', text: 'Anthropic\'in resmi web sitesini ziyaret et' }
+        ];
+        
+        elements.forEach(item => {
+            const elements = document.querySelectorAll(item.selector);
+            
+            elements.forEach(element => {
+                element.addEventListener('mouseenter', (e) => {
+                    const rect = element.getBoundingClientRect();
+                    
+                    tooltipContainer.textContent = item.text;
+                    tooltipContainer.style.left = `${rect.left + rect.width / 2}px`;
+                    tooltipContainer.style.top = `${rect.top - 10}px`;
+                    tooltipContainer.style.transform = 'translate(-50%, -100%)';
+                    tooltipContainer.style.opacity = '1';
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    tooltipContainer.style.opacity = '0';
+                });
+            });
+        });
+    };
+    
+    // Tooltip özelliğini etkinleştir
+    createTooltips();
+    
+    // Butonlara dalga efekti ekle
+    const addRippleEffect = () => {
+        const buttons = document.querySelectorAll('.btn');
+        
+        buttons.forEach(button => {
+            button.classList.add('interactive-button');
+            
+            button.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    };
+    
+    // Dalga efektini etkinleştir
+    addRippleEffect();
+    
+    // Yazı animasyonu
+    const createTypingEffect = () => {
+        const heroTitle = document.querySelector('.hero-content h1');
+        const heroSubtitle = document.querySelector('.hero-content h2');
+        
+        if (heroTitle && heroSubtitle) {
+            const originalTitle = heroTitle.textContent;
+            const originalSubtitle = heroSubtitle.textContent;
+            
+            // Metinleri temizle
+            heroTitle.textContent = '';
+            heroSubtitle.textContent = '';
+            
+            // Karakter karakter yazdırma fonksiyonu
+            const typeText = (element, text, i = 0, callback) => {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    setTimeout(() => typeText(element, text, i + 1, callback), 50);
+                } else if (callback) {
+                    callback();
+                }
+            };
+            
+            // Önce başlığı, sonra alt başlığı yaz
+            setTimeout(() => {
+                typeText(heroTitle, originalTitle, 0, () => {
+                    setTimeout(() => {
+                        typeText(heroSubtitle, originalSubtitle);
+                    }, 300);
+                });
+            }, 500);
+        }
+    };
+    
+    // Yazı animasyonunu başlat
+    createTypingEffect();
+    
+    // Sayfa yüklendiğinde yükleme animasyonu göster
+    const showLoadingAnimation = () => {
+        // Yükleme animasyonu container'ı
+        const loadingContainer = document.createElement('div');
+        loadingContainer.style.position = 'fixed';
+        loadingContainer.style.top = '0';
+        loadingContainer.style.left = '0';
+        loadingContainer.style.width = '100%';
+        loadingContainer.style.height = '100%';
+        loadingContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+        loadingContainer.style.display = 'flex';
+        loadingContainer.style.justifyContent = 'center';
+        loadingContainer.style.alignItems = 'center';
+        loadingContainer.style.zIndex = '9999';
+        loadingContainer.style.transition = 'opacity 0.5s';
+        
+        // Yükleme animasyonu
+        const loadingAnimation = document.createElement('div');
+        loadingAnimation.classList.add('loading-animation');
+        loadingAnimation.innerHTML = '<div></div><div></div><div></div><div></div>';
+        
+        // Claude logosu
+        const logo = document.createElement('div');
+        logo.style.fontSize = '2rem';
+        logo.style.fontWeight = 'bold';
+        logo.style.marginBottom = '20px';
+        logo.style.color = 'var(--primary-color)';
+        logo.innerHTML = 'Claude <span style="color: var(--secondary-color)">3.7</span>';
+        
+        // Container'a ekle
+        const content = document.createElement('div');
+        content.style.textAlign = 'center';
+        content.appendChild(logo);
+        content.appendChild(loadingAnimation);
+        loadingContainer.appendChild(content);
+        
+        // Sayfaya ekle
+        document.body.appendChild(loadingContainer);
+        
+        // Belirli bir süre sonra kaldır
+        setTimeout(() => {
+            loadingContainer.style.opacity = '0';
+            setTimeout(() => {
+                loadingContainer.remove();
+                // Yükleme tamamlandığında konfeti efekti başlat
+                createConfetti(30);
+            }, 500);
+        }, 1500);
+    };
+    
+    // Yükleme animasyonunu göster
+    showLoadingAnimation();
+    
+    // Etkileşimli özellikler kartları
+    const makeCardsInteractive = () => {
+        const featureCards = document.querySelectorAll('.feature-card');
+        
+        featureCards.forEach(card => {
+            // Kart içeriğini al
+            const icon = card.querySelector('.feature-icon');
+            const title = card.querySelector('h3');
+            
+            // İkon tıklama olayı
+            if (icon) {
+                icon.style.cursor = 'pointer';
+                icon.addEventListener('click', () => {
+                    // İkonu büyüt ve döndür
+                    icon.style.transform = 'scale(1.5) rotate(360deg)';
+                    icon.style.transition = 'transform 0.5s ease';
+                    
+                    // Konfeti efekti
+                    createConfetti(10);
+                    
+                    // Bir süre sonra normal haline döndür
+                    setTimeout(() => {
+                        icon.style.transform = '';
+                    }, 500);
+                });
+            }
+            
+            // Başlık tıklama olayı
+            if (title) {
+                title.style.cursor = 'pointer';
+                title.addEventListener('click', () => {
+                    // Rastgele renk değişimi
+                    const hue = Math.floor(Math.random() * 360);
+                    title.style.color = `hsl(${hue}, 70%, 50%)`;
+                    title.style.transition = 'color 0.3s ease';
+                    
+                    // Bir süre sonra normal rengine döndür
+                    setTimeout(() => {
+                        title.style.color = '';
+                    }, 1000);
+                });
+            }
+        });
+    };
+    
+    // Kartları etkileşimli yap
+    makeCardsInteractive();
+    
+    // Ses efektleri için işlevler
+    const playSoundEffect = (soundId) => {
+        const sound = document.getElementById(soundId);
+        if (sound) {
+            sound.currentTime = 0;
+            sound.play().catch(error => console.log('Ses çalma hatası:', error));
+        }
+    };
+    
+    // Özellik kartlarına ses efekti ekle
+    const cardsWithSound = document.querySelectorAll('[data-sound]');
+    cardsWithSound.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            const soundType = card.getAttribute('data-sound');
+            playSoundEffect(soundType + '-sound');
+        });
+    });
+    
+    // Demo butonlarına tıklama olayı ekle
+    const tryButtons = document.querySelectorAll('.try-button');
+    tryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Ses efekti çal
+            playSoundEffect('success-sound');
+            
+            // Buton metnini değiştir
+            const originalText = this.textContent;
+            this.textContent = 'Harika!';
+            
+            // Konfeti efekti
+            createConfetti(30);
+            
+            // Buton metnini geri al
+            setTimeout(() => {
+                this.textContent = originalText;
+            }, 2000);
+        });
+    });
+    
+    // Sürpriz butonu
+    const surpriseButton = document.getElementById('surprise-button');
+    if (surpriseButton) {
+        surpriseButton.addEventListener('click', function() {
+            // Ses efekti çal
+            playSoundEffect('surprise-sound');
+            
+            // Büyük konfeti patlaması
+            createConfetti(100);
+            
+            // Hero görselini değiştir
+            const heroImage = document.getElementById('hero-image');
+            if (heroImage) {
+                heroImage.src = 'https://placehold.co/600x400/purple/white?text=Claude+3.7+Rocks!';
+                
+                // Görsel animasyonu
+                heroImage.style.animation = 'pulse 1s infinite';
+                
+                // 5 saniye sonra normal haline döndür
+                setTimeout(() => {
+                    heroImage.src = 'https://placehold.co/600x400';
+                    heroImage.style.animation = '';
+                }, 5000);
+            }
+            
+            // Sayfa başlığını geçici olarak değiştir
+            const originalTitle = document.title;
+            document.title = '🎉 Claude 3.7 Harika! 🎉';
+            
+            // 5 saniye sonra başlığı geri al
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 5000);
+        });
+    }
+    
+    // Tema değiştirme butonu
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            // Ses efekti çal
+            playSoundEffect('click-sound');
+            
+            // Body'ye dark-theme sınıfı ekle/çıkar
+            document.body.classList.toggle('dark-theme');
+            
+            // Buton metnini güncelle
+            this.textContent = document.body.classList.contains('dark-theme') ? 'Açık Tema' : 'Koyu Tema';
+            
+            // Tema değişikliği için CSS değişkenlerini güncelle
+            if (document.body.classList.contains('dark-theme')) {
+                document.documentElement.style.setProperty('--background-color', '#121212');
+                document.documentElement.style.setProperty('--text-color', '#f8f9fa');
+                document.documentElement.style.setProperty('--section-bg', '#1e1e1e');
+                document.documentElement.style.setProperty('--card-bg', '#2d2d2d');
+            } else {
+                document.documentElement.style.setProperty('--background-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#333');
+                document.documentElement.style.setProperty('--section-bg', '#f8f9fa');
+                document.documentElement.style.setProperty('--card-bg', '#ffffff');
+            }
+        });
+    }
+    
+    // Sosyal medya ikonlarına hover efekti
+    const socialIcons = document.querySelectorAll('.social-icon');
+    socialIcons.forEach(icon => {
+        icon.addEventListener('mouseenter', function() {
+            // Ses efekti çal
+            playSoundEffect('pop-sound');
+            
+            // İkonu büyüt
+            this.style.transform = 'scale(1.2)';
+            
+            // Rastgele renk değişimi
+            const hue = Math.floor(Math.random() * 360);
+            this.style.color = `hsl(${hue}, 70%, 60%)`;
+        });
+        
+        icon.addEventListener('mouseleave', function() {
+            // Normal haline döndür
+            this.style.transform = '';
+            this.style.color = '';
+        });
+    });
+    
+    // Hero görselini etkileşimli yap
+    const heroImage = document.getElementById('hero-image');
+    if (heroImage) {
+        heroImage.addEventListener('click', function() {
+            // Ses efekti çal
+            playSoundEffect('success-sound');
+            
+            // Görsel animasyonu
+            this.style.transform = 'scale(1.1) rotate(5deg)';
+            
+            // Konfeti efekti
+            createConfetti(20);
+            
+            // 1 saniye sonra normal haline döndür
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 1000);
+        });
+    }
 }); 
