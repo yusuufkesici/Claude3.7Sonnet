@@ -917,4 +917,250 @@ footer {
 /* Animasyon Sınıfları */
 .clicked {
     animation: pulse 0.5s;
+}
+
+/* Oyunlar Bölümü */
+.games {
+    padding: 5rem 0;
+    background-color: var(--section-bg);
+}
+
+.section-description {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.games-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.game-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.game-card h3 i {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+}
+
+.game-card p {
+    margin-bottom: 1.5rem;
+}
+
+.game-btn {
+    margin-bottom: 1rem;
+}
+
+.game-container {
+    display: none;
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 1.5rem;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.game-score, .game-timer, .game-level {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.restart-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+/* Hafıza Oyunu */
+.memory-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+    background-color: var(--primary-color);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 2rem;
+    color: white;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    position: relative;
+}
+
+.memory-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.memory-card .front, 
+.memory-card .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+}
+
+.memory-card .front {
+    background-color: var(--primary-color);
+}
+
+.memory-card .back {
+    background-color: white;
+    transform: rotateY(180deg);
+    border: 2px solid var(--primary-color);
+}
+
+.memory-card.matched {
+    background-color: var(--accent-color);
+    opacity: 0.8;
+}
+
+/* Renk Tahmin Oyunu */
+.color-target {
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.color-code {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.color-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.color-option {
+    aspect-ratio: 1;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: transform 0.3s;
+    box-shadow: var(--shadow);
+}
+
+.color-option:hover {
+    transform: scale(1.05);
+}
+
+/* Hızlı Tıklama Oyunu */
+.click-board {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background-color: var(--section-bg);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 2px solid var(--primary-color);
+}
+
+.click-target {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: pulse 1s infinite;
+}
+
+/* Oyun Animasyonları */
+@keyframes celebrate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.celebrate {
+    animation: celebrate 0.5s;
+}
+
+/* Koyu Tema için Oyun Stilleri */
+.dark-theme .game-card {
+    background-color: var(--card-bg);
+}
+
+.dark-theme .game-card h3 {
+    color: var(--accent-color);
+}
+
+.dark-theme .memory-card .front {
+    background-color: var(--dark-color);
+}
+
+.dark-theme .memory-card .back {
+    background-color: var(--card-bg);
+    border-color: var(--accent-color);
+}
+
+.dark-theme .color-target {
+    background-color: var(--card-bg);
+}
+
+.dark-theme .click-board {
+    background-color: var(--dark-color);
+    border-color: var(--accent-color);
+}
+
+/* Mobil Uyumluluk */
+@media (max-width: 768px) {
+    .games-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .memory-board {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .color-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
 } 

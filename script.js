@@ -846,4 +846,350 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     }
+    
+    // Oyun Bölümü İşlevselliği
+    const gameButtons = document.querySelectorAll('.game-btn');
+    gameButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const gameId = this.getAttribute('data-game');
+            const gameContainer = document.getElementById(gameId);
+            
+            // Diğer tüm oyun konteynerlerini gizle
+            document.querySelectorAll('.game-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // Seçilen oyun konteynerini göster
+            gameContainer.style.display = 'block';
+            
+            // Oyunu başlat
+            if (gameId === 'memory-game') {
+                startMemoryGame();
+            } else if (gameId === 'color-game') {
+                startColorGame();
+            } else if (gameId === 'click-game') {
+                startClickGame();
+            }
+            
+            // Tıklama sesi çal
+            playSound('click');
+        });
+    });
+    
+    // Yeniden başlatma düğmelerini dinle
+    const restartButtons = document.querySelectorAll('.restart-btn');
+    restartButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const gameId = this.getAttribute('data-game');
+            
+            if (gameId === 'memory-game') {
+                startMemoryGame();
+            } else if (gameId === 'color-game') {
+                startColorGame();
+            } else if (gameId === 'click-game') {
+                startClickGame();
+            }
+            
+            // Tıklama sesi çal
+            playSound('click');
+        });
+    });
+    
+    // Hafıza Oyunu
+    function startMemoryGame() {
+        const memoryBoard = document.querySelector('.memory-board');
+        const scoreElement = document.getElementById('memory-score');
+        const timerElement = document.getElementById('memory-timer');
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval;
+        let flippedCards = [];
+        let matchedPairs = 0;
+        
+        // Emoji çiftleri
+        const emojis = ['🚀', '🌟', '🤖', '🧠', '💡', '🔮', '🎮', '🎯'];
+        const gameEmojis = [...emojis, ...emojis];
+        
+        // Karıştır
+        shuffleArray(gameEmojis);
+        
+        // Skoru sıfırla
+        scoreElement.textContent = `Skor: ${score}`;
+        
+        // Zamanlayıcıyı başlat
+        clearInterval(timerInterval);
+        timerElement.textContent = `Süre: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = `Süre: ${timeLeft}s`;
+            
+            if (timeLeft <= 0 || matchedPairs === emojis.length) {
+                clearInterval(timerInterval);
+                if (matchedPairs === emojis.length) {
+                    playSound('success');
+                    showConfetti();
+                } else {
+                    playSound('error');
+                }
+            }
+        }, 1000);
+        
+        // Kartları oluştur
+        memoryBoard.innerHTML = '';
+        gameEmojis.forEach((emoji, index) => {
+            const card = document.createElement('div');
+            card.className = 'memory-card';
+            card.dataset.value = emoji;
+            
+            const front = document.createElement('div');
+            front.className = 'front';
+            front.innerHTML = '<i class="fas fa-question"></i>';
+            
+            const back = document.createElement('div');
+            back.className = 'back';
+            back.textContent = emoji;
+            
+            card.appendChild(front);
+            card.appendChild(back);
+            
+            card.addEventListener('click', () => flipCard(card));
+            memoryBoard.appendChild(card);
+        });
+        
+        function flipCard(card) {
+            // Zaten eşleşmiş veya çevrilmiş kartları kontrol et
+            if (card.classList.contains('matched') || card.classList.contains('flipped') || flippedCards.length >= 2) {
+                return;
+            }
+            
+            // Kartı çevir
+            card.classList.add('flipped');
+            playSound('flip');
+            
+            // Çevrilen kartları takip et
+            flippedCards.push(card);
+            
+            // İki kart çevrildiyse kontrol et
+            if (flippedCards.length === 2) {
+                setTimeout(() => checkMatch(), 500);
+            }
+        }
+        
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.value === card2.dataset.value) {
+                // Eşleşme
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                score += 10;
+                matchedPairs++;
+                playSound('success');
+                
+                // Tüm çiftler eşleşti mi?
+                if (matchedPairs === emojis.length) {
+                    clearInterval(timerInterval);
+                    showConfetti();
+                }
+            } else {
+                // Eşleşmedi
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                score = Math.max(0, score - 2);
+                playSound('error');
+            }
+            
+            // Skoru güncelle
+            scoreElement.textContent = `Skor: ${score}`;
+            
+            // Çevrilen kartları sıfırla
+            flippedCards = [];
+        }
+    }
+    
+    // Renk Tahmin Oyunu
+    function startColorGame() {
+        const colorTarget = document.querySelector('.color-code');
+        const colorOptions = document.querySelector('.color-options');
+        const scoreElement = document.getElementById('color-score');
+        const levelElement = document.getElementById('color-level');
+        let score = 0;
+        let level = 1;
+        let correctColor;
+        
+        // Skoru ve seviyeyi sıfırla
+        scoreElement.textContent = `Skor: ${score}`;
+        levelElement.textContent = `Seviye: ${level}`;
+        
+        // Yeni renk oluştur
+        generateNewRound();
+        
+        function generateNewRound() {
+            // Renk seçeneklerini temizle
+            colorOptions.innerHTML = '';
+            
+            // Zorluk seviyesine göre renk farkını ayarla
+            const difficulty = Math.max(50 - (level * 5), 5);
+            
+            // Doğru rengi oluştur
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            correctColor = `rgb(${r}, ${g}, ${b})`;
+            
+            // RGB kodunu göster
+            colorTarget.textContent = correctColor;
+            
+            // Renk seçeneklerini oluştur (1 doğru, 2 yanlış)
+            const colors = [correctColor];
+            
+            // Yanlış renkleri oluştur
+            for (let i = 0; i < 2; i++) {
+                // Doğru renge yakın ama farklı bir renk oluştur
+                let newR = clamp(r + getRandomInt(-difficulty, difficulty), 0, 255);
+                let newG = clamp(g + getRandomInt(-difficulty, difficulty), 0, 255);
+                let newB = clamp(b + getRandomInt(-difficulty, difficulty), 0, 255);
+                
+                // Aynı renk olmamasını sağla
+                while (newR === r && newG === g && newB === b) {
+                    newR = clamp(r + getRandomInt(-difficulty, difficulty), 0, 255);
+                    newG = clamp(g + getRandomInt(-difficulty, difficulty), 0, 255);
+                    newB = clamp(b + getRandomInt(-difficulty, difficulty), 0, 255);
+                }
+                
+                colors.push(`rgb(${newR}, ${newG}, ${newB})`);
+            }
+            
+            // Renkleri karıştır
+            shuffleArray(colors);
+            
+            // Renk seçeneklerini ekle
+            colors.forEach(color => {
+                const option = document.createElement('div');
+                option.className = 'color-option';
+                option.style.backgroundColor = color;
+                option.addEventListener('click', () => checkColor(color));
+                colorOptions.appendChild(option);
+            });
+        }
+        
+        function checkColor(selectedColor) {
+            if (selectedColor === correctColor) {
+                // Doğru tahmin
+                score += level * 5;
+                level++;
+                playSound('success');
+                
+                // Seviye ve skoru güncelle
+                scoreElement.textContent = `Skor: ${score}`;
+                levelElement.textContent = `Seviye: ${level}`;
+                
+                // Yeni tur oluştur
+                setTimeout(() => generateNewRound(), 500);
+            } else {
+                // Yanlış tahmin
+                score = Math.max(0, score - 2);
+                playSound('error');
+                
+                // Skoru güncelle
+                scoreElement.textContent = `Skor: ${score}`;
+            }
+        }
+        
+        function clamp(num, min, max) {
+            return Math.min(Math.max(num, min), max);
+        }
+        
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+    }
+    
+    // Hızlı Tıklama Oyunu
+    function startClickGame() {
+        const clickBoard = document.querySelector('.click-board');
+        const scoreElement = document.getElementById('click-score');
+        const timerElement = document.getElementById('click-timer');
+        let score = 0;
+        let timeLeft = 30;
+        let timerInterval;
+        let currentTarget = null;
+        
+        // Skoru sıfırla
+        scoreElement.textContent = `Skor: ${score}`;
+        
+        // Zamanlayıcıyı başlat
+        clearInterval(timerInterval);
+        timerElement.textContent = `Süre: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = `Süre: ${timeLeft}s`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                removeTarget();
+                playSound('error');
+            }
+        }, 1000);
+        
+        // Tahtayı temizle
+        clickBoard.innerHTML = '';
+        
+        // İlk hedefi oluştur
+        createTarget();
+        
+        function createTarget() {
+            // Önceki hedefi kaldır
+            removeTarget();
+            
+            // Yeni hedef oluştur
+            const target = document.createElement('div');
+            target.className = 'click-target';
+            
+            // Rastgele boyut (30-50px)
+            const size = Math.floor(Math.random() * 20) + 30;
+            target.style.width = `${size}px`;
+            target.style.height = `${size}px`;
+            
+            // Rastgele konum
+            const maxX = clickBoard.clientWidth - size;
+            const maxY = clickBoard.clientHeight - size;
+            const x = Math.floor(Math.random() * maxX);
+            const y = Math.floor(Math.random() * maxY);
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+            
+            // Puan değeri (küçük hedefler daha değerli)
+            const points = Math.floor(50 / size * 10);
+            target.textContent = points;
+            
+            // Tıklama olayı
+            target.addEventListener('click', () => {
+                score += points;
+                scoreElement.textContent = `Skor: ${score}`;
+                playSound('success');
+                createTarget();
+            });
+            
+            // Tahtaya ekle
+            clickBoard.appendChild(target);
+            currentTarget = target;
+        }
+        
+        function removeTarget() {
+            if (currentTarget) {
+                currentTarget.remove();
+                currentTarget = null;
+            }
+        }
+    }
+    
+    // Yardımcı fonksiyonlar
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
 }); 
