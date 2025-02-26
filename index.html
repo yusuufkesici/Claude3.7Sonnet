@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude 3.7 Yetenekleri</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/modules/games.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase Kütüphaneleri -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <header>
@@ -21,7 +26,8 @@
                     <li><a href="#yetenekler">Yetenekler</a></li>
                     <li><a href="#kullanim-alanlari">Kullanım Alanları</a></li>
                     <li><a href="#demo">Demo</a></li>
-                    <li><a href="#oyunlar">Oyunlar</a></li>
+                    <li><a href="games.html">Oyunlar</a></li>
+                    <li><a href="chat.html">Sohbet</a></li>
                     <li><a href="#hakkinda">Hakkında</a></li>
                 </ul>
             </nav>
@@ -168,9 +174,9 @@
                     <button class="btn game-btn" data-game="memory">Oyna</button>
                     <div class="game-container" id="memory-game">
                         <div class="game-header">
-                            <div class="game-score">Skor: <span>0</span></div>
-                            <div class="game-timer">Süre: <span>0</span></div>
-                            <button class="btn restart-btn">Yeniden Başlat</button>
+                            <div class="game-score" id="memory-score">Skor: 0</div>
+                            <div class="game-timer" id="memory-timer">Süre: 60s</div>
+                            <button class="btn restart-btn" data-game="memory">Yeniden Başlat</button>
                         </div>
                         <div class="memory-board"></div>
                     </div>
@@ -183,9 +189,9 @@
                     <button class="btn game-btn" data-game="color">Oyna</button>
                     <div class="game-container" id="color-game">
                         <div class="game-header">
-                            <div class="game-score">Skor: <span>0</span></div>
-                            <div class="game-level">Seviye: <span>1</span></div>
-                            <button class="btn restart-btn">Yeniden Başlat</button>
+                            <div class="game-score" id="color-score">Skor: 0</div>
+                            <div class="game-level" id="color-level">Seviye: 1</div>
+                            <button class="btn restart-btn" data-game="color">Yeniden Başlat</button>
                         </div>
                         <div class="color-target">
                             <div class="color-code">RGB(255, 255, 255)</div>
@@ -201,9 +207,9 @@
                     <button class="btn game-btn" data-game="click">Oyna</button>
                     <div class="game-container" id="click-game">
                         <div class="game-header">
-                            <div class="game-score">Skor: <span>0</span></div>
-                            <div class="game-timer">Süre: <span>30</span></div>
-                            <button class="btn restart-btn">Yeniden Başlat</button>
+                            <div class="game-score" id="click-score">Skor: 0</div>
+                            <div class="game-timer" id="click-timer">Süre: 30s</div>
+                            <button class="btn restart-btn" data-game="click">Yeniden Başlat</button>
                         </div>
                         <div class="click-board"></div>
                     </div>
@@ -239,7 +245,8 @@
                         <li><a href="#yetenekler">Yetenekler</a></li>
                         <li><a href="#kullanim-alanlari">Kullanım Alanları</a></li>
                         <li><a href="#demo">Demo</a></li>
-                        <li><a href="#oyunlar">Oyunlar</a></li>
+                        <li><a href="games.html">Oyunlar</a></li>
+                        <li><a href="chat.html">Sohbet</a></li>
                         <li><a href="#hakkinda">Hakkında</a></li>
                     </ul>
                 </div>
@@ -262,18 +269,19 @@
 
     <!-- Ses Efektleri -->
     <audio id="pop-sound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-up-alert-notification-2357.mp3" type="audio/mpeg">
+        <source src="assets/sounds/pop.mp3" type="audio/mpeg">
     </audio>
     <audio id="click-sound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+        <source src="assets/sounds/click.mp3" type="audio/mpeg">
     </audio>
     <audio id="success-sound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1936.mp3" type="audio/mpeg">
+        <source src="assets/sounds/success.mp3" type="audio/mpeg">
     </audio>
     <audio id="surprise-sound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-bonus-reached-2065.mp3" type="audio/mpeg">
+        <source src="assets/sounds/surprise.mp3" type="audio/mpeg">
     </audio>
 
+    <script src="js/modules/games.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 

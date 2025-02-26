@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude 3.7 Sohbet</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Claude <span>3.7</span> Sohbet</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Ana Sayfa</a></li>
+                    <li><a href="index.html#yetenekler">Yetenekler</a></li>
+                    <li><a href="index.html#kullanim-alanlari">Kullanım Alanları</a></li>
+                    <li><a href="index.html#demo">Demo</a></li>
+                    <li><a href="games.html">Oyunlar</a></li>
+                    <li><a href="chat.html" class="active">Sohbet</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="chat-section">
+            <div class="container">
+                <div class="chat-container">
+                    <div class="chat-sidebar">
+                        <div class="user-profile">
+                            <div class="profile-pic">
+                                <img src="https://placehold.co/100x100/purple/white?text=U" alt="Kullanıcı">
+                            </div>
+                            <div class="profile-info">
+                                <h3>Kullanıcı</h3>
+                                <p class="status online">Çevrimiçi</p>
+                            </div>
+                        </div>
+                        <div class="chat-search">
+                            <input type="text" placeholder="Sohbet ara...">
+                            <button><i class="fas fa-search"></i></button>
+                        </div>
+                        <div class="chat-contacts">
+                            <h3>Sohbetler</h3>
+                            <ul>
+                                <li class="contact active" data-contact="claude">
+                                    <div class="contact-pic">
+                                        <img src="https://placehold.co/50x50/purple/white?text=C" alt="Claude">
+                                    </div>
+                                    <div class="contact-info">
+                                        <h4>Claude 3.7</h4>
+                                        <p>Merhaba, nasıl yardımcı olabilirim?</p>
+                                    </div>
+                                    <div class="contact-meta">
+                                        <span class="time">Şimdi</span>
+                                        <span class="unread">1</span>
+                                    </div>
+                                </li>
+                                <li class="contact" data-contact="sonnet">
+                                    <div class="contact-pic">
+                                        <img src="https://placehold.co/50x50/blue/white?text=S" alt="Sonnet">
+                                    </div>
+                                    <div class="contact-info">
+                                        <h4>Claude Sonnet</h4>
+                                        <p>Yaratıcı yazı konusunda yardım ister misin?</p>
+                                    </div>
+                                    <div class="contact-meta">
+                                        <span class="time">5 dk</span>
+                                    </div>
+                                </li>
+                                <li class="contact" data-contact="opus">
+                                    <div class="contact-pic">
+                                        <img src="https://placehold.co/50x50/green/white?text=O" alt="Opus">
+                                    </div>
+                                    <div class="contact-info">
+                                        <h4>Claude Opus</h4>
+                                        <p>Karmaşık problemleri çözebilirim.</p>
+                                    </div>
+                                    <div class="contact-meta">
+                                        <span class="time">30 dk</span>
+                                    </div>
+                                </li>
+                                <li class="contact" data-contact="haiku">
+                                    <div class="contact-pic">
+                                        <img src="https://placehold.co/50x50/orange/white?text=H" alt="Haiku">
+                                    </div>
+                                    <div class="contact-info">
+                                        <h4>Claude Haiku</h4>
+                                        <p>Kısa ve öz cevaplar için buradayım.</p>
+                                    </div>
+                                    <div class="contact-meta">
+                                        <span class="time">1 saat</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="chat-main">
+                        <div class="chat-header">
+                            <div class="chat-contact-info">
+                                <div class="contact-pic">
+                                    <img src="https://placehold.co/50x50/purple/white?text=C" alt="Claude">
+                                </div>
+                                <div class="contact-details">
+                                    <h3>Claude 3.7</h3>
+                                    <p class="status online">Çevrimiçi</p>
+                                </div>
+                            </div>
+                            <div class="chat-actions">
+                                <button class="action-btn" title="Sesli Arama"><i class="fas fa-phone"></i></button>
+                                <button class="action-btn" title="Görüntülü Arama"><i class="fas fa-video"></i></button>
+                                <button class="action-btn" title="Bilgi"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message-date">Bugün</div>
+                            <div class="message received">
+                                <div class="message-content">
+                                    <p>Merhaba! Ben Claude 3.7, Anthropic'in en gelişmiş AI asistanıyım. Size nasıl yardımcı olabilirim?</p>
+                                </div>
+                                <div class="message-time">10:00</div>
+                            </div>
+                            <div class="message sent">
+                                <div class="message-content">
+                                    <p>Merhaba Claude! Bugün nasılsın?</p>
+                                </div>
+                                <div class="message-time">10:01</div>
+                            </div>
+                            <div class="message received">
+                                <div class="message-content">
+                                    <p>Ben bir yapay zeka olduğum için duygularım yok, ama sistemlerim mükemmel çalışıyor! Sizin gününüz nasıl geçiyor?</p>
+                                </div>
+                                <div class="message-time">10:01</div>
+                            </div>
+                            <div class="message received typing">
+                                <div class="typing-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <button class="input-action" title="Emoji"><i class="far fa-smile"></i></button>
+                            <button class="input-action" title="Dosya Ekle"><i class="fas fa-paperclip"></i></button>
+                            <input type="text" id="message-input" placeholder="Mesajınızı yazın...">
+                            <button class="send-btn" id="send-btn" title="Gönder"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    <div class="chat-info">
+                        <div class="info-header">
+                            <h3>Claude 3.7</h3>
+                            <button class="close-info"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-section">
+                                <h4>Hakkında</h4>
+                                <p>Claude 3.7, Anthropic tarafından geliştirilen en yeni ve en gelişmiş yapay zeka asistanıdır. Doğal dil işleme, yaratıcı yazı, kod yazma ve problem çözme konularında üstün yeteneklere sahiptir.</p>
+                            </div>
+                            <div class="info-section">
+                                <h4>Yetenekler</h4>
+                                <ul>
+                                    <li><i class="fas fa-check"></i> Doğal ve akıcı konuşma</li>
+                                    <li><i class="fas fa-check"></i> Kod yazma ve düzenleme</li>
+                                    <li><i class="fas fa-check"></i> Yaratıcı içerik oluşturma</li>
+                                    <li><i class="fas fa-check"></i> Karmaşık soruları yanıtlama</li>
+                                    <li><i class="fas fa-check"></i> Çoklu dil desteği</li>
+                                </ul>
+                            </div>
+                            <div class="info-section">
+                                <h4>Medya Galerisi</h4>
+                                <div class="media-gallery">
+                                    <div class="media-item">
+                                        <img src="https://placehold.co/100x100/purple/white?text=AI" alt="Claude">
+                                    </div>
+                                    <div class="media-item">
+                                        <img src="https://placehold.co/100x100/blue/white?text=Chat" alt="Sohbet">
+                                    </div>
+                                    <div class="media-item">
+                                        <img src="https://placehold.co/100x100/green/white?text=Code" alt="Kod">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="chat-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <h4>Hızlı Bağlantılar</h4>
+                <ul>
+                    <li><a href="index.html">Ana Sayfa</a></li>
+                    <li><a href="index.html#yetenekler">Yetenekler</a></li>
+                    <li><a href="index.html#kullanim-alanlari">Kullanım Alanları</a></li>
+                    <li><a href="index.html#demo">Demo</a></li>
+                    <li><a href="games.html">Oyunlar</a></li>
+                    <li><a href="chat.html">Sohbet</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>İletişim</h4>
+                <p>Anthropic</p>
+                <p>San Francisco, CA</p>
+                <p>info@anthropic.com</p>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2023 Anthropic. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Ses Dosyaları -->
+    <audio id="message-sound" src="assets/sounds/message.mp3" preload="auto"></audio>
+    <audio id="notification-sound" src="assets/sounds/notification.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="assets/sounds/click.mp3" preload="auto"></audio>
+    <audio id="pop-sound" src="assets/sounds/pop.mp3" preload="auto"></audio>
+    <audio id="success-sound" src="assets/sounds/success.mp3" preload="auto"></audio>
+
+    <!-- JavaScript -->
+    <script src="chat.js"></script>
+</body>
+</html> 

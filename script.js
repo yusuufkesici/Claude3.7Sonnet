@@ -1,5 +1,8 @@
 // Sayfa yüklendiğinde çalışacak kodlar
 document.addEventListener('DOMContentLoaded', function() {
+    // Varsayılan olarak koyu tema ayarla
+    document.body.classList.add('dark-theme');
+    
     // Smooth scroll için tüm iç bağlantıları seç
     const links = document.querySelectorAll('a[href^="#"]');
     
@@ -209,21 +212,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 display: flex;
                 align-items: center;
                 gap: 8px;
+                cursor: pointer;
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+            
+            .visitor-counter:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .visitor-counter.clicked {
+                transform: scale(1.1);
             }
             
             .visitor-counter .icon {
                 font-size: 18px;
             }
             
+            .visitor-counter .count {
+                font-weight: bold;
+                animation: pulse 1.5s infinite;
+                display: inline-block;
+            }
+            
             @keyframes pulse {
                 0% { transform: scale(1); }
                 50% { transform: scale(1.1); }
                 100% { transform: scale(1); }
-            }
-            
-            .visitor-counter .count {
-                font-weight: bold;
-                animation: pulse 1.5s infinite;
             }
             
             .cursor-effect {
@@ -305,11 +320,162 @@ document.addEventListener('DOMContentLoaded', function() {
     
     addStyles();
     
+    // Firebase yapılandırması
+    const firebaseConfig = {
+        apiKey: "AIzaSyBGm3hVLEzwRNiKzCLGaUlHDQYVKGqmTbk",
+        authDomain: "claude-visitor-counter.firebaseapp.com",
+        databaseURL: "https://claude-visitor-counter-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "claude-visitor-counter",
+        storageBucket: "claude-visitor-counter.appspot.com",
+        messagingSenderId: "123456789012",
+        appId: "1:123456789012:web:1234567890abcdef123456"
+    };
+    
+    // Firebase'i başlat
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+        console.error("Firebase başlatma hatası:", e);
+        // Firebase yüklenemezse, eski ziyaretçi sayacını kullan
+        createFallbackVisitorCounter();
+        return;
+    }
+    
     // Anlık ziyaretçi sayısı özelliği
     const createVisitorCounter = () => {
+        try {
+            // Ziyaretçi sayacı elementi oluştur
+            const visitorCounter = document.createElement('div');
+            visitorCounter.classList.add('visitor-counter');
+            visitorCounter.title = "Tıkla ve konfeti yağmurunu izle!";
+            
+            // Simge ve sayaç içeriği
+            visitorCounter.innerHTML = `
+                <span class="icon">👥</span>
+                <span>Şu anda sitede: <span class="count">1</span> kişi</span>
+            `;
+            
+            // Sayfaya ekle
+            document.body.appendChild(visitorCounter);
+            
+            // Firebase veritabanı referansı
+            const database = firebase.database();
+            const visitorRef = database.ref('visitors');
+            
+            // Benzersiz kullanıcı kimliği oluştur veya al
+            let userId = localStorage.getItem('visitorId');
+            if (!userId) {
+                userId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('visitorId', userId);
+            }
+            
+            // Kullanıcıyı çevrimiçi olarak işaretle
+            const userStatusRef = visitorRef.child(userId);
+            userStatusRef.set({
+                online: true,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Kullanıcı sayfadan ayrıldığında çevrimdışı olarak işaretle
+            window.addEventListener('beforeunload', () => {
+                userStatusRef.remove();
+            });
+            
+            // Bağlantı durumunu izle
+            const connectedRef = database.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // Bağlantı kurulduğunda
+                    userStatusRef.onDisconnect().remove();
+                    userStatusRef.set({
+                        online: true,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
+            
+            // Ziyaretçi sayısını dinle ve güncelle
+            visitorRef.on('value', (snapshot) => {
+                try {
+                    const countElement = visitorCounter.querySelector('.count');
+                    const count = snapshot.numChildren();
+                    
+                    // Sayı değişimini animasyonlu göster
+                    if (countElement.textContent !== count.toString()) {
+                        countElement.style.animation = 'none';
+                        countElement.style.transform = 'scale(1.5)';
+                        countElement.style.color = '#ffcc00';
+                        
+                        setTimeout(() => {
+                            countElement.textContent = count;
+                            countElement.style.animation = 'pulse 1.5s infinite';
+                            countElement.style.transform = '';
+                            countElement.style.color = '';
+                        }, 300);
+                    } else {
+                        countElement.textContent = count;
+                    }
+                    
+                    // 10'dan fazla ziyaretçi varsa konfeti efekti
+                    if (count >= 10 && !localStorage.getItem('confettiShown')) {
+                        createConfetti(50);
+                        playSound('success');
+                        localStorage.setItem('confettiShown', 'true');
+                        
+                        // Bildirim göster
+                        showNotification('Tebrikler!', '10 ziyaretçi barajını aştınız!');
+                    }
+                } catch (e) {
+                    console.error("Ziyaretçi sayısı güncelleme hatası:", e);
+                    // Hata durumunda en azından 1 göster
+                    visitorCounter.querySelector('.count').textContent = '1';
+                }
+            });
+            
+            // Tıklama olayı ekle
+            visitorCounter.addEventListener('click', function() {
+                // Konfeti efekti başlat
+                createConfetti(30);
+                
+                // Ses efekti çal
+                playSound('success');
+                
+                // Animasyon ekle
+                this.classList.add('clicked');
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 500);
+                
+                // Rastgele renk değişimi
+                const hue = Math.floor(Math.random() * 360);
+                this.style.backgroundColor = `hsl(${hue}, 70%, 50%)`;
+                setTimeout(() => {
+                    this.style.backgroundColor = '';
+                }, 1000);
+            });
+            
+            // Hover efekti
+            visitorCounter.addEventListener('mouseenter', function() {
+                this.querySelector('.icon').textContent = '🎉';
+            });
+            
+            visitorCounter.addEventListener('mouseleave', function() {
+                this.querySelector('.icon').textContent = '👥';
+            });
+        } catch (error) {
+            console.error("Ziyaretçi sayacı oluşturma hatası:", error);
+            createFallbackVisitorCounter();
+        }
+    };
+    
+    // Firebase yüklenemezse yedek ziyaretçi sayacı
+    const createFallbackVisitorCounter = () => {
+        console.log("Yedek ziyaretçi sayacı oluşturuluyor...");
+        
         // Ziyaretçi sayacı elementi oluştur
         const visitorCounter = document.createElement('div');
         visitorCounter.classList.add('visitor-counter');
+        visitorCounter.title = "Tıkla ve konfeti yağmurunu izle!";
         
         // Simge ve sayaç içeriği
         visitorCounter.innerHTML = `
@@ -323,14 +489,39 @@ document.addEventListener('DOMContentLoaded', function() {
         // Rastgele ziyaretçi sayısı oluştur ve güncelle
         const updateVisitorCount = () => {
             // Gerçek bir sistem olmadığı için rastgele sayı üretiyoruz
-            // Normalde bu veri sunucu tarafından sağlanır
             const baseCount = 3; // Temel ziyaretçi sayısı
             const randomVariation = Math.floor(Math.random() * 5); // 0-4 arası rastgele değişim
             const totalCount = baseCount + randomVariation;
             
             // Sayacı güncelle
             const countElement = visitorCounter.querySelector('.count');
-            countElement.textContent = totalCount;
+            const oldCount = parseInt(countElement.textContent);
+            
+            // Sayı değişimini animasyonlu göster
+            if (oldCount !== totalCount) {
+                countElement.style.animation = 'none';
+                countElement.style.transform = 'scale(1.5)';
+                countElement.style.color = '#ffcc00';
+                
+                setTimeout(() => {
+                    countElement.textContent = totalCount;
+                    countElement.style.animation = 'pulse 1.5s infinite';
+                    countElement.style.transform = '';
+                    countElement.style.color = '';
+                }, 300);
+            } else {
+                countElement.textContent = totalCount;
+            }
+            
+            // 10'dan fazla ziyaretçi varsa konfeti efekti
+            if (totalCount >= 10 && !localStorage.getItem('confettiShown')) {
+                createConfetti(50);
+                playSound('success');
+                localStorage.setItem('confettiShown', 'true');
+                
+                // Bildirim göster
+                showNotification('Tebrikler!', '10 ziyaretçi barajını aştınız!');
+            }
         };
         
         // İlk sayıyı ayarla
@@ -342,7 +533,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tıklama olayı ekle
         visitorCounter.addEventListener('click', function() {
             // Konfeti efekti başlat
-            createConfetti(20);
+            createConfetti(30);
+            
+            // Ses efekti çal
+            playSound('success');
             
             // Sayacı hemen güncelle
             updateVisitorCount();
@@ -352,11 +546,51 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 this.classList.remove('clicked');
             }, 500);
+            
+            // Rastgele renk değişimi
+            const hue = Math.floor(Math.random() * 360);
+            this.style.backgroundColor = `hsl(${hue}, 70%, 50%)`;
+            setTimeout(() => {
+                this.style.backgroundColor = '';
+            }, 1000);
+        });
+        
+        // Hover efekti
+        visitorCounter.addEventListener('mouseenter', function() {
+            this.querySelector('.icon').textContent = '🎉';
+        });
+        
+        visitorCounter.addEventListener('mouseleave', function() {
+            this.querySelector('.icon').textContent = '👥';
         });
     };
     
-    // Ziyaretçi sayacını oluştur
-    createVisitorCounter();
+    // Firebase'i kontrol et ve ziyaretçi sayacını oluştur
+    if (typeof firebase !== 'undefined') {
+        createVisitorCounter();
+    } else {
+        // Firebase CDN'ini dinamik olarak yükle
+        const firebaseScript = document.createElement('script');
+        firebaseScript.src = 'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js';
+        firebaseScript.onload = function() {
+            // Firebase Database'i yükle
+            const databaseScript = document.createElement('script');
+            databaseScript.src = 'https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js';
+            databaseScript.onload = function() {
+                createVisitorCounter();
+            };
+            databaseScript.onerror = function() {
+                console.error("Firebase Database yüklenemedi");
+                createFallbackVisitorCounter();
+            };
+            document.head.appendChild(databaseScript);
+        };
+        firebaseScript.onerror = function() {
+            console.error("Firebase App yüklenemedi");
+            createFallbackVisitorCounter();
+        };
+        document.head.appendChild(firebaseScript);
+    }
     
     // Özel imleç efekti
     const createCursorEffect = () => {
@@ -403,58 +637,136 @@ document.addEventListener('DOMContentLoaded', function() {
         createCursorEffect();
     }
     
-    // Konfeti efekti
-    const createConfetti = (count = 50) => {
-        // Konfeti container'ı oluştur veya mevcut olanı kullan
-        let container = document.querySelector('.confetti-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.classList.add('confetti-container');
-            document.body.appendChild(container);
-        }
-        
-        // Belirtilen sayıda konfeti oluştur
-        for (let i = 0; i < count; i++) {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
+    // Konfeti efekti - global olarak erişilebilir
+    window.createConfetti = function(amount) {
+        try {
+            const confettiContainer = document.querySelector('.confetti-container') || createConfettiContainer();
             
-            // Rastgele renk, boyut ve pozisyon
-            const size = Math.random() * 10 + 5; // 5-15px arası
-            const hue = Math.floor(Math.random() * 360); // Rastgele renk
-            const left = Math.random() * 100; // Rastgele yatay pozisyon
-            
-            confetti.style.width = `${size}px`;
-            confetti.style.height = `${size}px`;
-            confetti.style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
-            confetti.style.left = `${left}%`;
-            
-            // Rastgele animasyon süresi ve gecikme
-            const duration = Math.random() * 3 + 2; // 2-5s arası
-            const delay = Math.random() * 0.5; // 0-0.5s arası
-            
-            confetti.style.animation = `confetti-fall ${duration}s ease-in-out ${delay}s`;
-            
-            // Konfeti container'a ekle
-            container.appendChild(confetti);
-            
-            // Animasyon bittiğinde konfeti'yi kaldır
-            setTimeout(() => {
-                confetti.remove();
-            }, (duration + delay) * 1000);
+            for (let i = 0; i < amount; i++) {
+                createConfettiPiece(confettiContainer);
+            }
+        } catch (error) {
+            console.error("Konfeti oluşturma hatası:", error);
         }
     };
     
-    // Sayfa yüklendiğinde konfeti efekti başlat
-    setTimeout(() => {
-        createConfetti(30);
-    }, 1000);
+    function createConfettiContainer() {
+        const container = document.createElement('div');
+        container.classList.add('confetti-container');
+        document.body.appendChild(container);
+        return container;
+    }
     
-    // Hero bölümündeki butona tıklandığında konfeti efekti
-    const heroButton = document.querySelector('.hero .btn');
-    if (heroButton) {
-        heroButton.addEventListener('click', () => {
-            createConfetti(50);
-        });
+    function createConfettiPiece(container) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        
+        // Rastgele renk
+        const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Rastgele boyut
+        const size = Math.random() * 10 + 5;
+        
+        // Rastgele konum
+        const startX = Math.random() * window.innerWidth;
+        const startY = -20;
+        
+        // Rastgele dönüş
+        const rotation = Math.random() * 360;
+        
+        // Rastgele hız
+        const speedX = Math.random() * 2 - 1;
+        const speedY = Math.random() * 3 + 2;
+        
+        // Stil ayarları
+        confetti.style.backgroundColor = color;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        confetti.style.position = 'absolute';
+        confetti.style.left = `${startX}px`;
+        confetti.style.top = `${startY}px`;
+        confetti.style.transform = `rotate(${rotation}deg)`;
+        
+        container.appendChild(confetti);
+        
+        // Animasyon
+        let posX = startX;
+        let posY = startY;
+        let rotationAngle = rotation;
+        
+        const animate = () => {
+            posY += speedY;
+            posX += speedX;
+            rotationAngle += 1;
+            
+            confetti.style.top = `${posY}px`;
+            confetti.style.left = `${posX}px`;
+            confetti.style.transform = `rotate(${rotationAngle}deg)`;
+            
+            // Ekrandan çıktıysa kaldır
+            if (posY > window.innerHeight) {
+                confetti.remove();
+            } else {
+                requestAnimationFrame(animate);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+    
+    // Ses çalma fonksiyonu - global olarak erişilebilir
+    window.playSound = function(type) {
+        try {
+            let sound;
+            switch(type) {
+                case 'click':
+                    sound = document.getElementById('click-sound');
+                    break;
+                case 'pop':
+                    sound = document.getElementById('pop-sound');
+                    break;
+                case 'success':
+                    sound = document.getElementById('success-sound');
+                    break;
+                case 'surprise':
+                    sound = document.getElementById('surprise-sound');
+                    break;
+                case 'flip':
+                    sound = document.getElementById('click-sound'); // Kart çevirme için click sesini kullan
+                    break;
+                case 'error':
+                    // Hata sesi yok, başka bir ses kullanabilirsiniz
+                    sound = document.getElementById('pop-sound');
+                    break;
+                default:
+                    sound = document.getElementById('click-sound');
+            }
+            
+            if (sound) {
+                // Ses dosyasını baştan başlat
+                sound.currentTime = 0;
+                
+                // Ses dosyasını çal
+                const playPromise = sound.play();
+                
+                // Play promise hatalarını yakala
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Ses çalma hatası:", error);
+                    });
+                }
+            } else {
+                console.error("Ses dosyası bulunamadı:", type);
+            }
+        } catch (error) {
+            console.error("Ses çalma fonksiyonu hatası:", error);
+        }
+    }
+    
+    // Konfeti efekti
+    function showConfetti() {
+        createConfetti(100); // 100 konfeti parçası oluştur
     }
     
     // Özellik kartlarına 3D efekti ekle
@@ -781,28 +1093,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', function() {
-            // Ses efekti çal
-            playSoundEffect('click-sound');
-            
-            // Body'ye dark-theme sınıfı ekle/çıkar
             document.body.classList.toggle('dark-theme');
             
-            // Buton metnini güncelle
-            this.textContent = document.body.classList.contains('dark-theme') ? 'Açık Tema' : 'Koyu Tema';
+            // Tema değiştiğinde ses çal
+            playSound('click');
             
-            // Tema değişikliği için CSS değişkenlerini güncelle
-            if (document.body.classList.contains('dark-theme')) {
-                document.documentElement.style.setProperty('--background-color', '#121212');
-                document.documentElement.style.setProperty('--text-color', '#f8f9fa');
-                document.documentElement.style.setProperty('--section-bg', '#1e1e1e');
-                document.documentElement.style.setProperty('--card-bg', '#2d2d2d');
-            } else {
-                document.documentElement.style.setProperty('--background-color', '#ffffff');
-                document.documentElement.style.setProperty('--text-color', '#333');
-                document.documentElement.style.setProperty('--section-bg', '#f8f9fa');
-                document.documentElement.style.setProperty('--card-bg', '#ffffff');
-            }
+            // Tema durumunu localStorage'a kaydet
+            const isDarkTheme = document.body.classList.contains('dark-theme');
+            localStorage.setItem('darkTheme', isDarkTheme);
+            
+            // Düğme metnini güncelle
+            this.textContent = isDarkTheme ? 'Açık Tema' : 'Koyu Tema';
         });
+        
+        // Sayfa yüklendiğinde düğme metnini ayarla
+        themeToggle.textContent = 'Açık Tema';
     }
     
     // Sosyal medya ikonlarına hover efekti
@@ -852,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     gameButtons.forEach(button => {
         button.addEventListener('click', function() {
             const gameId = this.getAttribute('data-game');
-            const gameContainer = document.getElementById(gameId);
+            const gameContainer = document.getElementById(gameId + '-game');
             
             // Diğer tüm oyun konteynerlerini gizle
             document.querySelectorAll('.game-container').forEach(container => {
@@ -863,11 +1168,11 @@ document.addEventListener('DOMContentLoaded', function() {
             gameContainer.style.display = 'block';
             
             // Oyunu başlat
-            if (gameId === 'memory-game') {
+            if (gameId === 'memory') {
                 startMemoryGame();
-            } else if (gameId === 'color-game') {
+            } else if (gameId === 'color') {
                 startColorGame();
-            } else if (gameId === 'click-game') {
+            } else if (gameId === 'click') {
                 startClickGame();
             }
             
@@ -882,11 +1187,11 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const gameId = this.getAttribute('data-game');
             
-            if (gameId === 'memory-game') {
+            if (gameId === 'memory') {
                 startMemoryGame();
-            } else if (gameId === 'color-game') {
+            } else if (gameId === 'color') {
                 startColorGame();
-            } else if (gameId === 'click-game') {
+            } else if (gameId === 'click') {
                 startClickGame();
             }
             
